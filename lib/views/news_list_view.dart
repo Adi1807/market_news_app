@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:market_news_app/services/news_service.dart';
+import 'package:market_news_app/services/theme_notifier.dart';
+import 'package:provider/provider.dart';
 
 class NewsListView extends StatelessWidget {
   const NewsListView({super.key});
@@ -7,8 +9,64 @@ class NewsListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.of(context).size.width > 600;
+    final themeNotifier = Provider.of<ThemeNotifier>(context, listen: false);
     return Scaffold(
-      appBar: AppBar(title: const Text("News App")),
+      appBar: AppBar(
+        title: const Text("News App"),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: () {
+                themeNotifier.setThemeMode(
+                  themeNotifier.themeMode == ThemeMode.dark
+                      ? ThemeMode.light
+                      : ThemeMode.dark,
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.1),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.wb_sunny,
+                      color: themeNotifier.themeMode == ThemeMode.light
+                          ? Colors.amber
+                          : Colors.grey,
+                    ),
+                    const SizedBox(width: 6),
+                    Switch(
+                      value: themeNotifier.themeMode == ThemeMode.dark,
+                      onChanged: (isDark) {
+                        themeNotifier.setThemeMode(
+                          isDark ? ThemeMode.dark : ThemeMode.light,
+                        );
+                      },
+                      activeColor: Colors.amber,
+                      inactiveThumbColor: Colors.grey,
+                      inactiveTrackColor: Colors.grey.shade400,
+                    ),
+                    const SizedBox(width: 6),
+                    Icon(
+                      Icons.nightlight_round,
+                      color: themeNotifier.themeMode == ThemeMode.dark
+                          ? Colors.blueGrey
+                          : Colors.grey,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
       body: ValueListenableBuilder(
         valueListenable: newsService.newsServiceValueNotifier,
         builder: (context, _, __) {
